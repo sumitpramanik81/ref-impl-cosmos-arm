@@ -1,0 +1,1263 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vulnerabilityAssessments_Default_storageContainerPath": {
+      "type": "SecureString"
+    },
+    "sites_ref_impl_cosmos_apiapp_name": {
+      "defaultValue": "ref-impl-cosmos-apiapp",
+      "type": "String"
+    },
+    "vaults_ref_impl_cosmos_keyvault_name": {
+      "defaultValue": "ref-impl-cosmos-keyvault",
+      "type": "String"
+    },
+    "servers_ref_impl_cosmos_sqldb_server_name": {
+      "defaultValue": "ref-impl-cosmos-sqldb-server",
+      "type": "String"
+    },
+    "components_ref_impl_cosmos_apiapp_name": {
+      "defaultValue": "ref-impl-cosmos-apiapp",
+      "type": "String"
+    },
+    "serverfarms_ref_impl_cosmos_appserviceplan_name": {
+      "defaultValue": "ref-impl-cosmos-appserviceplan",
+      "type": "String"
+    },
+    "namespaces_ref_impl_cosmos_servicebus_name": {
+      "defaultValue": "ref-impl-cosmos-servicebus",
+      "type": "String"
+    },
+    "databaseAccounts_ref_impl_cosmos_dbaccount_name": {
+      "defaultValue": "ref-impl-cosmos-dbaccount",
+      "type": "String"
+    },
+    "actionGroups_Application_Insights_Smart_Detection_name": {
+      "defaultValue": "Application Insights Smart Detection",
+      "type": "String"
+    },
+    "configurationStores_ref_impl_cosmos_appconfig_name": {
+      "defaultValue": "ref-impl-cosmos-appconfig",
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores",
+      "apiVersion": "2021-03-01-preview",
+      "name": "[parameters('configurationStores_ref_impl_cosmos_appconfig_name')]",
+      "location": "eastus",
+      "tags": {
+        "Purpose": "Ref Architecture Template"
+      },
+      "sku": {
+        "name": "free"
+      },
+      "properties": {
+        "encryption": {},
+        "disableLocalAuth": false
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2021-04-15",
+      "name": "[parameters('databaseAccounts_ref_impl_cosmos_dbaccount_name')]",
+      "location": "East US",
+      "tags": {
+        "defaultExperience": "Core (SQL)",
+        "Purpose": "Reference Architecture Template",
+        "hidden-cosmos-mmspecial": ""
+      },
+      "kind": "GlobalDocumentDB",
+      "identity": {
+        "type": "None"
+      },
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "enableAutomaticFailover": false,
+        "enableMultipleWriteLocations": false,
+        "isVirtualNetworkFilterEnabled": false,
+        "virtualNetworkRules": [],
+        "disableKeyBasedMetadataWriteAccess": false,
+        "enableFreeTier": false,
+        "enableAnalyticalStorage": false,
+        "databaseAccountOfferType": "Standard",
+        "networkAclBypass": "None",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session",
+          "maxIntervalInSeconds": 5,
+          "maxStalenessPrefix": 100
+        },
+        "locations": [
+          {
+            "locationName": "East US",
+            "provisioningState": "Failed",
+            "failoverPriority": 0,
+            "isZoneRedundant": true
+          }
+        ],
+        "cors": [],
+        "capabilities": [
+          {
+            "name": "EnableServerless"
+          }
+        ],
+        "ipRules": [
+          {
+            "ipAddressOrRange": "104.42.195.92"
+          },
+          {
+            "ipAddressOrRange": "40.76.54.131"
+          },
+          {
+            "ipAddressOrRange": "52.176.6.30"
+          },
+          {
+            "ipAddressOrRange": "52.169.50.45"
+          },
+          {
+            "ipAddressOrRange": "52.187.184.26"
+          }
+        ],
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupIntervalInMinutes": 240,
+            "backupRetentionIntervalInHours": 8
+          }
+        },
+        "networkAclBypassResourceIds": []
+      }
+    },
+    {
+      "type": "microsoft.insights/actionGroups",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('actionGroups_Application_Insights_Smart_Detection_name')]",
+      "location": "Global",
+      "properties": {
+        "groupShortName": "SmartDetect",
+        "enabled": true,
+        "emailReceivers": [],
+        "smsReceivers": [],
+        "webhookReceivers": [],
+        "itsmReceivers": [],
+        "azureAppPushReceivers": [],
+        "automationRunbookReceivers": [],
+        "voiceReceivers": [],
+        "logicAppReceivers": [],
+        "azureFunctionReceivers": [],
+        "armRoleReceivers": [
+          {
+            "name": "Monitoring Contributor",
+            "roleId": "749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+            "useCommonAlertSchema": true
+          },
+          {
+            "name": "Monitoring Reader",
+            "roleId": "43d0d8ad-25c7-4714-9337-8ba259a9fe05",
+            "useCommonAlertSchema": true
+          }
+        ]
+      }
+    },
+    {
+      "type": "microsoft.insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[parameters('components_ref_impl_cosmos_apiapp_name')]",
+      "location": "eastus",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "Request_Source": "IbizaWebAppExtensionCreate",
+        "IngestionMode": "ApplicationInsights",
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2021-04-01-preview",
+      "name": "[parameters('vaults_ref_impl_cosmos_keyvault_name')]",
+      "location": "eastus",
+      "tags": {
+        "Purpose": "Reference Architecture"
+      },
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "Standard"
+        },
+        "tenantId": "0f4a9b17-b35f-4b5f-81cc-c1cfa47ea463",
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Deny",
+          "ipRules": [],
+          "virtualNetworkRules": []
+        },
+        "accessPolicies": [
+          {
+            "tenantId": "0f4a9b17-b35f-4b5f-81cc-c1cfa47ea463",
+            "objectId": "e3ac2f35-5e34-478d-b0e0-429e35891339",
+            "permissions": {
+              "keys": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore"
+              ],
+              "secrets": [
+                "Get",
+                "List",
+                "Set",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore"
+              ],
+              "certificates": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore",
+                "ManageContacts",
+                "ManageIssuers",
+                "GetIssuers",
+                "ListIssuers",
+                "SetIssuers",
+                "DeleteIssuers"
+              ]
+            }
+          }
+        ],
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": true,
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 90,
+        "enableRbacAuthorization": false,
+        "vaultUri": "[concat('https://', parameters('vaults_ref_impl_cosmos_keyvault_name'), '.vault.azure.net/')]",
+        "provisioningState": "Succeeded"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces",
+      "apiVersion": "2021-01-01-preview",
+      "name": "[parameters('namespaces_ref_impl_cosmos_servicebus_name')]",
+      "location": "East US",
+      "tags": {
+        "Purpose": "Ref Architecture Template"
+      },
+      "sku": {
+        "name": "Basic",
+        "tier": "Basic"
+      },
+      "properties": {
+        "zoneRedundant": false
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[parameters('servers_ref_impl_cosmos_sqldb_server_name')]",
+      "location": "eastus",
+      "tags": {
+        "Pu": "Reference Architecture"
+      },
+      "kind": "v12.0",
+      "properties": {
+        "administratorLogin": "ref-impl-cosmos",
+        "version": "12.0",
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2018-02-01",
+      "name": "[parameters('serverfarms_ref_impl_cosmos_appserviceplan_name')]",
+      "location": "East US",
+      "sku": {
+        "name": "F1",
+        "tier": "Free",
+        "size": "F1",
+        "family": "F",
+        "capacity": 0
+      },
+      "kind": "app",
+      "properties": {
+        "perSiteScaling": false,
+        "maximumElasticWorkerCount": 1,
+        "isSpot": false,
+        "reserved": false,
+        "isXenon": false,
+        "hyperV": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/degradationindependencyduration')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "degradationindependencyduration",
+          "DisplayName": "Degradation in dependency duration",
+          "Description": "Smart Detection rules notify you of performance anomaly issues.",
+          "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": false,
+          "SupportsEmailNotifications": true
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/degradationinserverresponsetime')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "degradationinserverresponsetime",
+          "DisplayName": "Degradation in server response time",
+          "Description": "Smart Detection rules notify you of performance anomaly issues.",
+          "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": false,
+          "SupportsEmailNotifications": true
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/digestMailConfiguration')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "digestMailConfiguration",
+          "DisplayName": "Digest Mail Configuration",
+          "Description": "This rule describes the digest mail preferences",
+          "HelpUrl": "www.homail.com",
+          "IsHidden": true,
+          "IsEnabledByDefault": true,
+          "IsInPreview": false,
+          "SupportsEmailNotifications": true
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/extension_billingdatavolumedailyspikeextension')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "extension_billingdatavolumedailyspikeextension",
+          "DisplayName": "Abnormal rise in daily data volume (preview)",
+          "Description": "This detection rule automatically analyzes the billing data generated by your application, and can warn you about an unusual increase in your application's billing costs",
+          "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/billing-data-volume-daily-spike.md",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": true,
+          "SupportsEmailNotifications": false
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/extension_canaryextension')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "extension_canaryextension",
+          "DisplayName": "Canary extension",
+          "Description": "Canary extension",
+          "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/",
+          "IsHidden": true,
+          "IsEnabledByDefault": true,
+          "IsInPreview": true,
+          "SupportsEmailNotifications": false
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/extension_exceptionchangeextension')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "extension_exceptionchangeextension",
+          "DisplayName": "Abnormal rise in exception volume (preview)",
+          "Description": "This detection rule automatically analyzes the exceptions thrown in your application, and can warn you about unusual patterns in your exception telemetry.",
+          "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/abnormal-rise-in-exception-volume.md",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": true,
+          "SupportsEmailNotifications": false
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/extension_memoryleakextension')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "extension_memoryleakextension",
+          "DisplayName": "Potential memory leak detected (preview)",
+          "Description": "This detection rule automatically analyzes the memory consumption of each process in your application, and can warn you about potential memory leaks or increased memory consumption.",
+          "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/memory-leak.md",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": true,
+          "SupportsEmailNotifications": false
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/extension_securityextensionspackage')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "extension_securityextensionspackage",
+          "DisplayName": "Potential security issue detected (preview)",
+          "Description": "This detection rule automatically analyzes the telemetry generated by your application and detects potential security issues.",
+          "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/application-security-detection-pack.md",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": true,
+          "SupportsEmailNotifications": false
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/extension_traceseveritydetector')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "extension_traceseveritydetector",
+          "DisplayName": "Degradation in trace severity ratio (preview)",
+          "Description": "This detection rule automatically analyzes the trace logs emitted from your application, and can warn you about unusual patterns in the severity of your trace telemetry.",
+          "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/degradation-in-trace-severity-ratio.md",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": true,
+          "SupportsEmailNotifications": false
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/longdependencyduration')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "longdependencyduration",
+          "DisplayName": "Long dependency duration",
+          "Description": "Smart Detection rules notify you of performance anomaly issues.",
+          "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": false,
+          "SupportsEmailNotifications": true
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/migrationToAlertRulesCompleted')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "migrationToAlertRulesCompleted",
+          "DisplayName": "Migration To Alert Rules Completed",
+          "Description": "A configuration that controls the migration state of Smart Detection to Smart Alerts",
+          "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+          "IsHidden": true,
+          "IsEnabledByDefault": false,
+          "IsInPreview": true,
+          "SupportsEmailNotifications": false
+        },
+        "enabled": false,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/slowpageloadtime')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "slowpageloadtime",
+          "DisplayName": "Slow page load time",
+          "Description": "Smart Detection rules notify you of performance anomaly issues.",
+          "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": false,
+          "SupportsEmailNotifications": true
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[concat(parameters('components_ref_impl_cosmos_apiapp_name'), '/slowserverresponsetime')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('components_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "ruleDefinitions": {
+          "Name": "slowserverresponsetime",
+          "DisplayName": "Slow server response time",
+          "Description": "Smart Detection rules notify you of performance anomaly issues.",
+          "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+          "IsHidden": false,
+          "IsEnabledByDefault": true,
+          "IsInPreview": false,
+          "SupportsEmailNotifications": true
+        },
+        "enabled": true,
+        "sendEmailsToSubscriptionOwners": true,
+        "customEmails": []
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+      "apiVersion": "2017-04-01",
+      "name": "[concat(parameters('namespaces_ref_impl_cosmos_servicebus_name'), '/RootManageSharedAccessKey')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_ref_impl_cosmos_servicebus_name'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/networkRuleSets",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[concat(parameters('namespaces_ref_impl_cosmos_servicebus_name'), '/default')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_ref_impl_cosmos_servicebus_name'))]"
+      ],
+      "properties": {
+        "defaultAction": "Deny",
+        "virtualNetworkRules": [],
+        "ipRules": []
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/CreateIndex')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/DbParameterization')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/DefragmentIndex')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/DropIndex')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ForceLastGoodPlan')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/auditingPolicies",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/Default')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "auditingState": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/auditingSettings",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "retentionDays": 0,
+        "auditActionsAndGroups": [],
+        "isStorageSecondaryKeyInUse": false,
+        "isAzureMonitorTargetEnabled": false,
+        "state": "Disabled",
+        "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb')]",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "tags": {
+        "Pu": "Reference Architecture"
+      },
+      "sku": {
+        "name": "Basic",
+        "tier": "Basic",
+        "capacity": 5
+      },
+      "kind": "v12.0,user",
+      "properties": {
+        "collation": "SQL_Latin1_General_CP1_CI_AS",
+        "maxSizeBytes": 2147483648,
+        "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+        "zoneRedundant": false,
+        "readScale": "Disabled",
+        "requestedBackupStorageRedundancy": "Geo",
+        "maintenanceConfigurationId": "/subscriptions/c075684b-9ab7-473a-a536-d3f5318c5fe7/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/master/Default')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "auditingState": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/auditingSettings",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/master/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "retentionDays": 0,
+        "isAzureMonitorTargetEnabled": false,
+        "state": "Disabled",
+        "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/master/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "retentionDays": 0,
+        "isAzureMonitorTargetEnabled": false,
+        "state": "Disabled",
+        "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/master/Default')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "state": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/master/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "state": "Disabled",
+        "disabledAlerts": [
+          ""
+        ],
+        "emailAddresses": [
+          ""
+        ],
+        "emailAccountAdmins": false,
+        "retentionDays": 0
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/master/current')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "status": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/master/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "recurringScans": {
+          "isEnabled": false,
+          "emailSubscriptionAdmins": true
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/devOpsAuditingSettings",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "isAzureMonitorTargetEnabled": false,
+        "state": "Disabled",
+        "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/encryptionProtector",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/current')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "kind": "servicemanaged",
+      "properties": {
+        "serverKeyName": "ServiceManaged",
+        "serverKeyType": "ServiceManaged",
+        "autoRotationEnabled": false
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/extendedAuditingSettings",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "retentionDays": 0,
+        "auditActionsAndGroups": [],
+        "isStorageSecondaryKeyInUse": false,
+        "isAzureMonitorTargetEnabled": false,
+        "state": "Disabled",
+        "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/keys",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ServiceManaged')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "kind": "servicemanaged",
+      "properties": {
+        "serverKeyType": "ServiceManaged"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/securityAlertPolicies",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "state": "Disabled",
+        "disabledAlerts": [
+          ""
+        ],
+        "emailAddresses": [
+          ""
+        ],
+        "emailAccountAdmins": false,
+        "retentionDays": 0
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "recurringScans": {
+          "isEnabled": false,
+          "emailSubscriptionAdmins": true
+        },
+        "storageContainerPath": "[parameters('vulnerabilityAssessments_Default_storageContainerPath')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "name": "[parameters('sites_ref_impl_cosmos_apiapp_name')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ref_impl_cosmos_appserviceplan_name'))]"
+      ],
+      "kind": "api",
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[concat(parameters('sites_ref_impl_cosmos_apiapp_name'), '.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[concat(parameters('sites_ref_impl_cosmos_apiapp_name'), '.scm.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ref_impl_cosmos_appserviceplan_name'))]",
+        "reserved": false,
+        "isXenon": false,
+        "hyperV": false,
+        "siteConfig": {},
+        "scmSiteAlsoStopped": false,
+        "clientAffinityEnabled": true,
+        "clientCertEnabled": false,
+        "hostNamesDisabled": false,
+        "containerSize": 0,
+        "dailyMemoryTimeQuota": 0,
+        "httpsOnly": false,
+        "redundancyMode": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_ref_impl_cosmos_apiapp_name'), '/web')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "numberOfWorkers": 1,
+        "defaultDocuments": [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php",
+          "hostingstart.html"
+        ],
+        "netFrameworkVersion": "v4.0",
+        "phpVersion": "5.6",
+        "requestTracingEnabled": false,
+        "remoteDebuggingEnabled": false,
+        "httpLoggingEnabled": false,
+        "logsDirectorySizeLimit": 35,
+        "detailedErrorLoggingEnabled": false,
+        "publishingUsername": "$ref-impl-cosmos-apiapp",
+        "azureStorageAccounts": {},
+        "scmType": "None",
+        "use32BitWorkerProcess": true,
+        "webSocketsEnabled": false,
+        "alwaysOn": false,
+        "managedPipelineMode": "Integrated",
+        "virtualApplications": [
+          {
+            "virtualPath": "/",
+            "physicalPath": "site\\wwwroot",
+            "preloadEnabled": false
+          }
+        ],
+        "loadBalancing": "LeastRequests",
+        "experiments": {
+          "rampUpRules": []
+        },
+        "autoHealEnabled": false,
+        "localMySqlEnabled": false,
+        "ipSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictionsUseMain": false,
+        "http20Enabled": false,
+        "minTlsVersion": "1.2",
+        "ftpsState": "AllAllowed",
+        "reservedInstanceCount": 0
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_ref_impl_cosmos_apiapp_name'), '/', parameters('sites_ref_impl_cosmos_apiapp_name'), '.azurewebsites.net')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_ref_impl_cosmos_apiapp_name'))]"
+      ],
+      "properties": {
+        "siteName": "ref-impl-cosmos-apiapp",
+        "hostNameType": "Verified"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/CreateIndex')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/DbParameterization')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/DefragmentIndex')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/DropIndex')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/advisors",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/ForceLastGoodPlan')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "autoExecuteValue": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/Default')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "auditingState": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/auditingSettings",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "retentionDays": 0,
+        "isAzureMonitorTargetEnabled": false,
+        "state": "Disabled",
+        "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "weeklyRetention": "PT0S",
+        "monthlyRetention": "PT0S",
+        "yearlyRetention": "PT0S",
+        "weekOfYear": 0
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "retentionDays": 7
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "retentionDays": 0,
+        "isAzureMonitorTargetEnabled": false,
+        "state": "Disabled",
+        "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/Default')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "state": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "state": "Disabled",
+        "disabledAlerts": [
+          ""
+        ],
+        "emailAddresses": [
+          ""
+        ],
+        "emailAccountAdmins": false,
+        "retentionDays": 0
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/current')]",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "status": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[concat(parameters('servers_ref_impl_cosmos_sqldb_server_name'), '/ref-impl-cosmos-sqldb/Default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_ref_impl_cosmos_sqldb_server_name'), 'ref-impl-cosmos-sqldb')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_ref_impl_cosmos_sqldb_server_name'))]"
+      ],
+      "properties": {
+        "recurringScans": {
+          "isEnabled": false,
+          "emailSubscriptionAdmins": true
+        }
+      }
+    }
+  ]
+}

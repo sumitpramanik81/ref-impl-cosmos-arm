@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vulnerabilityAssessments_Default_storageContainerPath": {
+      "value": null
+    },
+    "sites_ref_impl_cosmos_apiapp_name": {
+      "value": null
+    },
+    "vaults_ref_impl_cosmos_keyvault_name": {
+      "value": null
+    },
+    "servers_ref_impl_cosmos_sqldb_server_name": {
+      "value": null
+    },
+    "components_ref_impl_cosmos_apiapp_name": {
+      "value": null
+    },
+    "serverfarms_ref_impl_cosmos_appserviceplan_name": {
+      "value": null
+    },
+    "namespaces_ref_impl_cosmos_servicebus_name": {
+      "value": null
+    },
+    "databaseAccounts_ref_impl_cosmos_dbaccount_name": {
+      "value": null
+    },
+    "actionGroups_Application_Insights_Smart_Detection_name": {
+      "value": null
+    },
+    "configurationStores_ref_impl_cosmos_appconfig_name": {
+      "value": null
+    }
+  }
+}
